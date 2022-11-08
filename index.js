@@ -60,5 +60,5 @@ async function run() {
 run();
 
 app.listen(port, () => {
-  console.log("Photography ReviewZone Server is Running on Port :", port);
+  console.log(`Photography ReviewZone Server is Running on Port : ${port}`);
 });
