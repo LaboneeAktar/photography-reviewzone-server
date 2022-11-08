@@ -29,10 +29,22 @@ async function run() {
       .db("photographyReviewZone")
       .collection("services");
 
-    //get limited data
+    //send limited data
     app.get("/services", async (req, res) => {
       const query = {};
       const cursor = servicesCollection.find(query).limit(3);
+      const services = await cursor.toArray();
+
+      res.send({
+        success: true,
+        data: services,
+      });
+    });
+
+    //send all services data
+    app.get("/allservices", async (req, res) => {
+      const query = {};
+      const cursor = servicesCollection.find(query);
       const services = await cursor.toArray();
 
       res.send({
