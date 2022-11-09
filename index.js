@@ -6,6 +6,7 @@ require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
 
+//muddle wares
 app.use(cors());
 app.use(express.json());
 
@@ -23,9 +24,15 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    //services collection
     const servicesCollection = client
       .db("photographyReviewZone")
       .collection("services");
+
+    //reviews collection
+    const reviewCollection = client
+      .db("photographyReviewZone")
+      .collection("reviews");
 
     //send limited data
     app.get("/services", async (req, res) => {
@@ -35,15 +42,12 @@ async function run() {
       res.send(services);
     });
 
-    //send all services data
+    //send all service data
     app.get("/allservices", async (req, res) => {
       const query = {};
       const cursor = servicesCollection.find(query);
       const services = await cursor.toArray();
-      res.send({
-        success: true,
-        data: services,
-      });
+      res.send(services);
 
       //send single services data
       app.get("/allservices/:id", async (req, res) => {
@@ -52,6 +56,14 @@ async function run() {
         const service = await servicesCollection.findOne(query);
         console.log(service);
         res.send(service);
+      });
+
+      //reviews api
+      app.post("/reviews", async (req, res) => {
+        const review = req.body;
+        const result = await reviewCollection.insertOne(review);
+        console.log(result);
+        res.send(result);
       });
     });
   } catch (error) {
