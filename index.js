@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
@@ -23,8 +23,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
-
     const servicesCollection = client
       .db("photographyReviewZone")
       .collection("services");
@@ -34,11 +32,7 @@ async function run() {
       const query = {};
       const cursor = servicesCollection.find(query).limit(3);
       const services = await cursor.toArray();
-
-      res.send({
-        success: true,
-        data: services,
-      });
+      res.send(services);
     });
 
     //send all services data
@@ -46,10 +40,18 @@ async function run() {
       const query = {};
       const cursor = servicesCollection.find(query);
       const services = await cursor.toArray();
-
       res.send({
         success: true,
         data: services,
+      });
+
+      //send single services data
+      app.get("/allservices/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const service = await servicesCollection.findOne(query);
+        console.log(service);
+        res.send(service);
       });
     });
   } catch (error) {
@@ -57,7 +59,7 @@ async function run() {
   } finally {
   }
 }
-run();
+run().catch((error) => console.log(error));
 
 app.listen(port, () => {
   console.log(`Photography ReviewZone Server is Running on Port : ${port}`);
