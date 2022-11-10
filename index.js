@@ -59,12 +59,26 @@ async function run() {
       res.send(service);
     });
 
-    //get reviews data
+    //get reviews data by service id
     app.get("/reviews", async (req, res) => {
       let query = {};
       if (req.query.serviceId) {
         query = {
           serviceId: req.query.serviceId,
+        };
+      }
+
+      const cursor = reviewCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+
+    //get reviews data by specific email
+    app.get("/reviews/myreviews", async (req, res) => {
+      let query = {};
+      if (req.query.email) {
+        query = {
+          email: req.query.email,
         };
       }
 
@@ -80,6 +94,16 @@ async function run() {
       console.log(result);
       res.send(result);
     });
+
+    //delete review
+    app.delete("/reviews/myreviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reviewCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    //
   } catch (error) {
     console.log(error.name, error.message, error.stack);
   } finally {
