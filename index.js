@@ -48,23 +48,37 @@ async function run() {
       const cursor = servicesCollection.find(query);
       const services = await cursor.toArray();
       res.send(services);
+    });
 
-      //send single services data
-      app.get("/allservices/:id", async (req, res) => {
-        const id = req.params.id;
-        const query = { _id: ObjectId(id) };
-        const service = await servicesCollection.findOne(query);
-        console.log(service);
-        res.send(service);
-      });
+    //send single services data
+    app.get("/allservices/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const service = await servicesCollection.findOne(query);
+      // console.log(service);
+      res.send(service);
+    });
 
-      //reviews api
-      app.post("/reviews", async (req, res) => {
-        const review = req.body;
-        const result = await reviewCollection.insertOne(review);
-        console.log(result);
-        res.send(result);
-      });
+    //get reviews data
+    app.get("/reviews", async (req, res) => {
+      let query = {};
+      if (req.query.serviceId) {
+        query = {
+          serviceId: req.query.serviceId,
+        };
+      }
+
+      const cursor = reviewCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+
+    //reviews api
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      const result = await reviewCollection.insertOne(review);
+      console.log(result);
+      res.send(result);
     });
   } catch (error) {
     console.log(error.name, error.message, error.stack);
